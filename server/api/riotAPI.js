@@ -28,24 +28,20 @@ const kayn = Kayn(API_KEY)({
   }
 });
 
-const BASE_URL = "https://na1.api.riotgames.com";
-const SUMMONER_BY_NAME_URL = "/lol/summoner/v4/summoners/by-name/";
-const MATCH_LIST_URL = "/lol/match/v4/matchlists/by-account/";
-
 router.get("/", async (req, res, next) => {
   const { summonerName } = req.query;
 
   const user = await getSummonerByName(summonerName);
-  //   console.log(user.accountId);
 
   const matchList = await getMatchListByAccount(user.accountId);
-  //   console.log(matchList);
 
-  const matchList_20 = get20Matches(matchList);
-  //   console.log(matchList_20);
+  const matchList_10 = get10Matches(matchList);
 
-  const match = await getMyMatchDetails(matchList_20[0], summonerName);
+  const myMatchDetails = await getMyMatchDetails(matchList_10[0], summonerName);
+  res.send(myMatchDetails);
 });
+
+//helper functions and api calls
 
 async function getSummonerByName(summonerName) {
   const summoner = await kayn.Summoner.by.name(summonerName);
@@ -59,6 +55,7 @@ async function getMatchListByAccount(accountId) {
 
 async function getMyMatchDetails(matchID, summonerName) {
   const match = await kayn.Match.get(matchID);
+  console.log(match);
   const myParticipantId = match.participantIdentities.filter(participants => {
     return participants.player.summonerName === summonerName;
   });
@@ -67,10 +64,10 @@ async function getMyMatchDetails(matchID, summonerName) {
     return participants.participantId === myParticipantId[0].participantId;
   });
 
-  console.log(myDetails[0]);
+  return { mydetails: myDetails[0], match: match };
 }
 
-function get20Matches(matchList) {
+function get10Matches(matchList) {
   let matches = [];
 
   for (let i = 0; i < 10; i++) {
