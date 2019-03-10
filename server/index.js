@@ -8,7 +8,6 @@ const riotAPI = require("./api/riotAPI");
 if (process.env.NODE_ENV === "production") {
   const root = path.resolve(__dirname, "../public");
   app.use(express.static(root));
-  app.use(fallback("index.html", { root }));
 }
 
 app.use(bodyParser.json());
